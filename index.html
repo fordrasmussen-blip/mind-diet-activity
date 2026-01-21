@@ -113,6 +113,47 @@
         summary { font-weight: bold; color: #2c3e50; }
         ul { margin-top: 10px; }
 
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: #fff;
+            padding: 24px 28px;
+            border-radius: 12px;
+            max-width: 90%;
+            width: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .modal-content h2 { margin-top: 0; color: #2e7d32; }
+        .modal-content p { color: #444; }
+        .modal-content button {
+            margin-top: 16px;
+            padding: 10px 18px;
+            background: #2e7d32;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-content button:hover { background: #276b2a; }
+
     </style>
 </head>
 <body>
@@ -158,7 +199,15 @@
 
     </div>
 
-    
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <div class="modal-content">
+        <h2 id="success-title">Well done!</h2>
+        <p>You completed the activity correctly.</p>
+        <button id="reset-btn" onclick="resetActivity()">Reset Activity</button>
+      </div>
+    </div>
+
 
     <script>
         function allowDrop(ev) {
@@ -207,6 +256,13 @@
                     document.getElementById('feedback').innerText = "Oops! Try again.";
                     document.getElementById('feedback').style.color = "red";
                 }
+
+                // After each drop, check if all items are correctly placed
+                if (checkCompletion()) {
+                    // show success modal
+                    document.getElementById('success-modal').classList.add('show');
+                    document.getElementById('feedback').innerText = "";
+                }
             }
         }
 
@@ -215,6 +271,54 @@
             element.classList.remove('wrong');
             document.getElementById('feedback').innerText = "";
         }
+
+        function checkCompletion() {
+            var items = document.querySelectorAll('.food-item');
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var parent = item.parentElement;
+                if (!parent) return false;
+                // If still in bank, not complete
+                if (parent.id === 'bank') return false;
+                var isGoodZone = parent.id === 'good-zone';
+                var isGoodFood = item.dataset.type === 'good';
+                if ((isGoodZone && isGoodFood) || (!isGoodZone && !isGoodFood)) {
+                    // ok
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function resetActivity() {
+            var bank = document.getElementById('bank');
+            var items = document.querySelectorAll('.food-item');
+            items.forEach(function(item) {
+                bank.appendChild(item);
+                resetStyle(item);
+            });
+            // hide modal
+            document.getElementById('success-modal').classList.remove('show');
+            document.getElementById('feedback').innerText = "";
+        }
+
+        // Allow closing modal with Escape key for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modal = document.getElementById('success-modal');
+                if (modal.classList.contains('show')) {
+                    modal.classList.remove('show');
+                }
+            }
+        });
+
+        // Allow clicking outside modal content to close
+        document.getElementById('success-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
