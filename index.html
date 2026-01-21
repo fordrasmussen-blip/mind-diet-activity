@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIND Diet Activity</title>
+    <style>
+        /* CSS STYLES */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 { color: #2c3e50; }
+        p { color: #555; max-width: 600px; margin: 0 auto 20px auto; }
+
+        /* The Container for the Game */
+        .game-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Draggable Items Area */
+        .food-bank {
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* The Drop Zones */
+        .drop-zones {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .zone {
+            flex: 1;
+            padding: 20px;
+            border-radius: 12px;
+            min-height: 300px;
+            transition: background 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mind-friendly {
+            background-color: #e8f5e9;
+            border: 2px dashed #4caf50;
+        }
+        
+        .limit-avoid {
+            background-color: #ffebee;
+            border: 2px dashed #ef5350;
+        }
+
+        /* Draggable Images */
+        .food-item {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            cursor: grab;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .food-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        /* Feedback Message */
+        #feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            height: 20px;
+            color: #333;
+        }
+        
+        /* Success/Error coloring */
+        .correct { border: 3px solid #4caf50; }
+        .wrong { border: 3px solid #ef5350; }
+
+        /* Accessibility Section */
+        .access-options {
+            max-width: 800px;
+            margin: 40px auto;
+            text-align: left;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        details { cursor: pointer; }
+        summary { font-weight: bold; color: #2c3e50; }
+        ul { margin-top: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <h2>MIND Diet Plate</h2>
+    <p>Drag the foods into the correct category. Which foods are encouraged on the MIND diet, and which should be limited?</p>
+
+    <div id="feedback"></div>
+
+    <div class="game-container">
+        
+        <div class="food-bank" id="bank" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <img src="oatmeal.png" alt="Bowl of Oatmeal" title="Whole Grains (Oatmeal)" draggable="true" ondragstart="drag(event)" id="img1" data-type="good" class="food-item">
+            
+            <img src="fries.png" alt="French Fries" title="Fried Food" draggable="true" ondragstart="drag(event)" id="img2" data-type="bad" class="food-item">
+            
+            <img src="greens.png" alt="Spinach and Kale" title="Leafy Greens" draggable="true" ondragstart="drag(event)" id="img3" data-type="good" class="food-item">
+            
+            <img src="butter.png" alt="Stick of Butter" title="Butter/Margarine" draggable="true" ondragstart="drag(event)" id="img4" data-type="bad" class="food-item">
+            
+            <img src="nuts.png" alt="Mixed Nuts" title="Nuts" draggable="true" ondragstart="drag(event)" id="img5" data-type="good" class="food-item">
+            
+            <img src="pastry.png" alt="Donut or Pastry" title="Sweets/Pastries" draggable="true" ondragstart="drag(event)" id="img6" data-type="bad" class="food-item">
+            
+            <img src="chicken.png" alt="Grilled Chicken" title="Poultry" draggable="true" ondragstart="drag(event)" id="img7" data-type="good" class="food-item">
+            
+            <img src="beans.png" alt="Beans and Lentils" title="Beans/Legumes" draggable="true" ondragstart="drag(event)" id="img8" data-type="good" class="food-item">
+            
+            <img src="cheese.png" alt="Block of Cheese" title="Cheese" draggable="true" ondragstart="drag(event)" id="img9" data-type="bad" class="food-item">
+            
+            <img src="steak.png" alt="Red Meat Steak" title="Red Meat" draggable="true" ondragstart="drag(event)" id="img10" data-type="bad" class="food-item">
+        </div>
+
+        <div class="drop-zones">
+            <div class="zone mind-friendly" id="good-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3>Encouraged (MIND)</h3>
+            </div>
+            
+            <div class="zone limit-avoid" id="bad-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h3>Limit / Avoid</h3>
+            </div>
+        </div>
+
+    </div>
+
+    
+
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.dataTransfer.setData("type", ev.target.dataset.type);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var type = ev.dataTransfer.getData("type");
+            var draggedElement = document.getElementById(data);
+            
+            // Check where it is being dropped
+            var dropZone = ev.target.closest('.zone');
+            
+            // If dropped back in the bank
+            if (ev.target.id === 'bank' || ev.target.closest('#bank')) {
+                document.getElementById('bank').appendChild(draggedElement);
+                resetStyle(draggedElement);
+                return;
+            }
+
+            // If dropped in a zone
+            if (dropZone) {
+                dropZone.appendChild(draggedElement);
+                
+                // Validation Logic
+                var isGoodZone = dropZone.id === "good-zone";
+                var isGoodFood = type === "good";
+
+                if ((isGoodZone && isGoodFood) || (!isGoodZone && !isGoodFood)) {
+                    // Correct match
+                    draggedElement.classList.add('correct');
+                    draggedElement.classList.remove('wrong');
+                    document.getElementById('feedback').innerText = "Correct!";
+                    document.getElementById('feedback').style.color = "green";
+                } else {
+                    // Incorrect match
+                    draggedElement.classList.add('wrong');
+                    draggedElement.classList.remove('correct');
+                    document.getElementById('feedback').innerText = "Oops! Try again.";
+                    document.getElementById('feedback').style.color = "red";
+                }
+            }
+        }
+
+        function resetStyle(element) {
+            element.classList.remove('correct');
+            element.classList.remove('wrong');
+            document.getElementById('feedback').innerText = "";
+        }
+    </script>
+</body>
+</html>
